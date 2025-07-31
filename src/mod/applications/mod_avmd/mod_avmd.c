@@ -1483,13 +1483,18 @@ SWITCH_STANDARD_APP(avmd_start_app) {
 			flags |= SMBF_READ_REPLACE;
 			direction = "READ_REPLACE";
 	}
-	if ((SWITCH_CALL_DIRECTION_INBOUND == switch_channel_direction(channel)) && (avmd_session->settings.inbound_channnel == 1)) {
+    if ((SWITCH_CALL_DIRECTION_INBOUND == switch_channel_direction(channel)) /* && (avmd_session->settings.inbound_channnel == 1) */) {
+             /* DCH: for drachtio-fsmrf */
+             flags |= SMBF_READ_REPLACE;
+             direction = "READ_REPLACE";
+/*
 			flags |= SMBF_WRITE_REPLACE;
 			if (!strcmp(direction, "READ_REPLACE")) {
 				direction = "READ_REPLACE | WRITE_REPLACE";
 			} else {
 				direction = "WRITE_REPLACE";
 			}
+*/
 	}
 
 	if (flags == 0) {

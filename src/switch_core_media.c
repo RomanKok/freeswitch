@@ -2636,7 +2636,7 @@ static int get_rtt_red_seq(int want_seq, void *data, switch_size_t datalen, int 
 	*(buf + datalen) = '\0';
 
 	while (*buf & 0x80) {
-		if (buf + 3 > e) {
+		if (buf + 3 > e || count >= MAX_RED_FRAMES) {
 			*new_datalen = 0;
 			return 0;
 		}

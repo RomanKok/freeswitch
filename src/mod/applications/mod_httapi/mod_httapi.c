@@ -2477,6 +2477,12 @@ static switch_status_t fetch_cache_data(http_file_context_t *context, const char
 	char *ua = NULL;
 	const char *profile_name = NULL;
 	int tries = 10;
+	int awsSignedUrl = strstr(url, "X-Amz-Signature") != NULL &&
+        strstr(url, "X-Amz-Algorithm") != NULL &&
+        strstr(url, "X-Amz-Credential") != NULL &&
+        strstr(url, "X-Amz-Date") != NULL &&
+        strstr(url, "X-Amz-Expires") != NULL &&
+        strstr(url, "X-Amz-SignedHeaders") != NULL;
 
 	if (context->url_params) {
 		profile_name = switch_event_get_header(context->url_params, "profile_name");
@@ -2619,7 +2625,7 @@ static switch_status_t fetch_cache_data(http_file_context_t *context, const char
 		switch_curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *) client);
 	} else {
 		switch_curl_easy_setopt(curl_handle, CURLOPT_HEADER, 1);
-		switch_curl_easy_setopt(curl_handle, CURLOPT_NOBODY, 1);
+		if (!awsSignedUrl) switch_curl_easy_setopt(curl_handle, CURLOPT_NOBODY, 1);
 
 		/* Prevent writing the data (headers in this case) to stdout */
 		switch_curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, dummy_save_file_callback);
@@ -2795,6 +2801,12 @@ static switch_status_t locate_url_file(http_file_context_t *context, const char 
 	char *metadata;
 	const char *ext = NULL;
 	const char *err_msg = NULL;
+	int awsSignedUrl = strstr(url, "X-Amz-Signature") != NULL &&
+        strstr(url, "X-Amz-Algorithm") != NULL &&
+        strstr(url, "X-Amz-Credential") != NULL &&
+        strstr(url, "X-Amz-Date") != NULL &&
+        strstr(url, "X-Amz-Expires") != NULL &&
+        strstr(url, "X-Amz-SignedHeaders") != NULL;
 
 	load_cache_data(context, url);
 
@@ -2843,7 +2855,7 @@ static switch_status_t locate_url_file(http_file_context_t *context, const char 
 
 		if (!unreachable && !zstr(context->metadata)) {
 			metadata = switch_core_sprintf(context->pool, "%s:%s:%s:%s:%s",
-										   url,
+										   awsSignedUrl ? context->cache_file : url,
 										   switch_event_get_header_nil(headers, "last-modified"),
 										   switch_event_get_header_nil(headers, "etag"),
 										   switch_event_get_header_nil(headers, "content-length"),
@@ -2867,7 +2879,7 @@ static switch_status_t locate_url_file(http_file_context_t *context, const char 
 
 
 	metadata = switch_core_sprintf(context->pool, "%s:%s:%s:%s:%s",
-								   url,
+								   awsSignedUrl ? context->cache_file : url,
 								   switch_event_get_header_nil(headers, "last-modified"),
 								   switch_event_get_header_nil(headers, "etag"),
 								   switch_event_get_header_nil(headers, "content-length"),

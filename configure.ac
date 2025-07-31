@@ -13,7 +13,7 @@ AC_SUBST(SWITCH_VERSION_REVISION_HUMAN, [])
 AC_CONFIG_FILES([src/include/switch_version.h.in:src/include/switch_version.h.template])
 
 AC_CONFIG_AUX_DIR(build/config)
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_CONFIG_SRCDIR([src/switch.c])
 AC_CONFIG_HEADER([src/include/switch_private.h])
@@ -1620,6 +1620,20 @@ AS_IF([test "x$enable_core_libedit_support" != "xno"],[
       AC_MSG_ERROR([You need to either install libedit-dev (>= 2.11) or configure with --disable-core-libedit-support])
       ])])])
 
+dnl DH: Added for including libwebsockets
+AC_ARG_WITH(lws,
+  [AS_HELP_STRING([--with-lws],
+    [enable support for libwebsockets])],
+  [with_lws="$withval"],
+  [with_lws="no"])
+if test "$with_lws" = "yes"; then
+  PKG_CHECK_MODULES([LWS], [libwebsockets], [
+    AM_CONDITIONAL([HAVE_LWS],[true])], [
+    AC_MSG_RESULT([no]); AM_CONDITIONAL([HAVE_LWS],[false])])
+else
+  AM_CONDITIONAL([HAVE_LWS],[false])
+fi
+
 AC_ARG_ENABLE(systemd,
   [AS_HELP_STRING([--enable-systemd], [Compile with systemd notify support])])
 
@@ -1990,6 +2004,7 @@ AC_CONFIG_FILES([Makefile
 		tests/unit/Makefile
 		src/Makefile
 		src/mod/Makefile
+		src/mod/applications/mod_audio_fork/Makefile
 		src/mod/applications/mod_avmd/Makefile
 		src/mod/applications/mod_bert/Makefile
 		src/mod/applications/mod_blacklist/Makefile
