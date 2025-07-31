@@ -568,6 +568,8 @@ fi
 AC_SUBST(SYS_XMLRPC_CFLAGS)
 AC_SUBST(SYS_XMLRPC_LDFLAGS)
 AM_CONDITIONAL([SYSTEM_XMLRPCC],[test "${enable_xmlrpcc}" = "yes"])
+AM_CONDITIONAL([USE_AVX2], [true])
+AM_CONDITIONAL([USE_SSE2], [true])
 
 for luaversion in luajit lua5.3 lua-5.3 lua53 lua5.2 lua-5.2 lua52 lua5.1 lua-5.1 lua; do
   PKG_CHECK_MODULES([LUA],[${luaversion}],[have_lua=yes],[have_lua=no])

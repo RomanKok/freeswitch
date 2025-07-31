@@ -5677,7 +5677,7 @@ static int jb_valid(switch_rtp_t *rtp_session)
 static switch_size_t do_flush(switch_rtp_t *rtp_session, int force, switch_size_t bytes_in)
 {
 	int was_blocking = 0;
-	switch_size_t bytes;
+//	switch_size_t bytes;
 	switch_size_t bytes_out = 0;
 
 	if (!switch_rtp_ready(rtp_session)) {
